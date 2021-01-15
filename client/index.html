@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./client/style.css">
+</head>
+<body>
+    <div class="frame">
+        <div class="board">
+            <div class="login-box">
+                <div class="row">
+                    <input type="text" placeholder="Channel" class="input" id="room"/>
+                </div>
+                <div class="row">
+                    <input type="text" placeholder="Type your name" class="input" id="client_name"/>
+                </div>        
+                <div class="row">
+                    <button id="button_login" class="button">Join</button>
+                </div>
+            </div>
+            <div class="boardbox">
+                <div class="table">
+                    <div class="grad"></div>
+                </div>
+            </div>
+        </div>
+        <div class="board-overlay">
+            <div class="popupready">
+                <div class="popup">
+                    <div class="row">
+                        <div class="topRow">
+                            <div class="wait-message">Waiting for game to start</div>  
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="bottomRow">
+                            <button class="button" id="buttonHandler">Ready!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./client/config.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const OWNER_DRAW_DECK = "draw"
+        const OWNER_DISCARD_DECK = "dsc"   
+
+        var socket = io();
+        
+        var client = {
+            name: '',
+            code: null
+        };
+        var clients = [];
+        var room = null;
+        var game = {
+            cards:[],
+            events:[],
+            winner: false,
+            ready: false
+        };
+
+        $(".boardbox").hide();
+        $(".board-overlay").hide();
+
+    </script>
+     <script src="./client/functions.js"></script>
+    <script>
+        socket.on('state', function(data){
+            gameStateResponse(data);
+            
+            if(!client.code){
+                $('.login-box').show();
+                $(".boardbox").hide();
+                
+                
+            }else{
+                $('.login-box').hide();
+                $(".boardbox").show();
+                
+            }
+
+            if(!client.ready){
+                $(".board-overlay").show();
+            }else{
+                $(".board-overlay").hide();
+            }
+        });
+
+        
+
+        $(".frame").css({width:config.boardWidth+'px', height:config.boardHeight+'px'});
+
+        $("#button_login").click(function(){
+            if($("#client_name").val().length > 0) {
+                client = {"name": $("#client_name").val(), "code": null}
+                room = $("#room").val();
+                socket.emit('create', room);
+                socket.emit('login', {'client': client}); 
+            }
+        });
+
+    </script>
+    </body>
+</html>
